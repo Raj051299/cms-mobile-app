@@ -1,12 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const HomeScreen = ({ navigation }) => {
 
     const handleLogout = async () => {
         try {
-        //   await AsyncStorage.removeItem('user');
+          await AsyncStorage.removeItem('user');
           navigation.reset({
             index: 0,
             routes: [{ name: 'Login' }],

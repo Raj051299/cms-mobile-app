@@ -53,11 +53,11 @@ const LoginScreen = ({navigation}) => {
   
       if (!snapshot.empty) {
         alert('Login successful!');
-        //this saves user session
-        // if (rememberMe) {
-        //   const userDoc = snapshot.docs[0].data();
-        //   await AsyncStorage.setItem('user', JSON.stringify(userDoc));
-        // }
+        // this saves user session
+        if (rememberMe) {
+          const userDoc = snapshot.docs[0].data();
+          await AsyncStorage.setItem('user', JSON.stringify(userDoc));
+        }
         navigation.navigate('Home');
       } else {
         alert('Invalid email or password');
