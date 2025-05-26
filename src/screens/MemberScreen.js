@@ -8,7 +8,6 @@ import {
   ScrollView,
   SafeAreaView,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useUser } from "../utils/useUser";
 import BackHeader from "../components/Backheader";
 import { scale, verticalScale } from "react-native-size-matters";

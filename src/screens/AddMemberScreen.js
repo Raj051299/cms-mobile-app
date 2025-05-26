@@ -11,17 +11,17 @@ import {
   Alert,
   Platform,
   SafeAreaView,
+  StatusBar,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "../../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
 import Toast from "react-native-toast-message";
 import { scale, verticalScale } from "react-native-size-matters";
-import { storage } from "../../firebase"; // adjust the path
+import { storage,db } from "../../firebase"; // adjust the path
 
 const AddMemberScreen = () => {
   const navigation = useNavigation();
@@ -74,7 +74,6 @@ const AddMemberScreen = () => {
     if (!result.canceled && result.assets.length > 0) {
       setCoverImage(result.assets[0].uri);
     }
-    console.log("This is uri------->>>>>", imageUrl);
   };
 
   const uploadImageToFirebase = async (uri) => {
@@ -91,7 +90,6 @@ const AddMemberScreen = () => {
       await uploadBytes(storageRef, blob);
       const downloadURL = await getDownloadURL(storageRef);
 
-      console.log("✅ Upload success:", downloadURL);
       return downloadURL;
     } catch (error) {
       console.error("Image upload failed:", error);
@@ -110,6 +108,7 @@ const AddMemberScreen = () => {
       Toast.show({
         type: "error",
         text1: "Please fill all required fields",
+        position: "bottom",
       });
       return;
     }
@@ -118,11 +117,9 @@ const AddMemberScreen = () => {
 
     let imageUrl = null;
 
-    console.log(coverImage);
     if (coverImage) {
       imageUrl = await uploadImageToFirebase(coverImage);
     }
-    console.log("This is imageUrl------->>>>>", imageUrl);
     try {
       const memberData = {
         member_name,
@@ -164,13 +161,10 @@ const AddMemberScreen = () => {
   };
 
   const calculateAgeFromDOB = (dobString) => {
-    console.log("============>>>>>>>>>>>", dobString);
     const today = new Date();
     const birthDate = new Date(dobString);
-    console.log(birthDate);
 
     let age = today.getFullYear() - birthDate.getFullYear();
-    console.log(age);
     const monthDiff = today.getMonth() - birthDate.getMonth();
 
     // If birth month hasn't arrived yet this year, or it's the same month but birth day hasn't arrived
@@ -181,7 +175,6 @@ const AddMemberScreen = () => {
       age--;
     }
 
-    console.log(age);
     return age;
   };
 

@@ -6,11 +6,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   Modal,
+  Platform,
+  StatusBar,
 } from "react-native";
-import { collection, getDocs, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Platform, StatusBar } from "react-native";
 import { scale } from "react-native-size-matters";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
@@ -22,20 +23,19 @@ const EventAttendanceScreen = ({ route, navigation }) => {
   const [attendees, setAttendees] = useState([]);
 
   useEffect(() => {
-  const attendeesRef = collection(db, 'events', eventId, 'attendees');
+    const attendeesRef = collection(db, "events", eventId, "attendees");
 
-  const unsubscribe = onSnapshot(attendeesRef, (snapshot) => {
-    const data = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    
-    setAttendees(data);
-  });
+    const unsubscribe = onSnapshot(attendeesRef, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
 
-  return () => unsubscribe(); // cleanup listener on unmount
-}, [eventId]);
+      setAttendees(data);
+    });
 
+    return () => unsubscribe(); // cleanup listener on unmount
+  }, [eventId]);
 
   const getTotalHours = (clockIn, clockOut) => {
     const diff = clockOut - clockIn;

@@ -8,7 +8,8 @@ import {
   StyleSheet,
   ScrollView,
   Dimensions,
-  Platform
+  Platform,
+  StatusBar,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { doc, getDocs, collection } from "firebase/firestore";

@@ -14,7 +14,7 @@ import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase"; // adjust path if needed
 import { useAuth } from "../context/AuthContext";
 import { useDrawerStatus } from "@react-navigation/drawer";
-
+import Toast from "react-native-toast-message";
 import { scale, verticalScale } from "react-native-size-matters";
 
 const categories = [
@@ -79,7 +79,7 @@ const HomeScreen = () => {
             );
           })
 
-          .sort((a, b) => a.date.toDate() - b.date.toDate())
+          .sort((a, b) => a.date.toDate() - b.date.toDate());
 
         setEvents(updatedEvents);
       }
@@ -127,21 +127,21 @@ const HomeScreen = () => {
 
       <Text style={styles.cardTitle}>{item.title}</Text>
       <Text style={styles.cardLocation}>{item.description}</Text>
-        <Text style={styles.attendees}>
-  Event on {item.date?.toDate?.().toLocaleDateString('en-US', {
-    weekday: 'short',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })}{' '}
-  at {item.date?.toDate?.().toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  })}
-</Text>
-
-
+      <Text style={styles.attendees}>
+        Event on{" "}
+        {item.date?.toDate?.().toLocaleDateString("en-US", {
+          weekday: "short",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })}{" "}
+        at{" "}
+        {item.date?.toDate?.().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })}
+      </Text>
     </TouchableOpacity>
   );
 
@@ -157,9 +157,20 @@ const HomeScreen = () => {
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem("user");
-      setIsLoggedIn(false); // ✅ Switches to AuthStack
+      setIsLoggedIn(false);
+      Toast.show({
+        type: "success",
+        text1: "Logout Successful",
+        text2: "Please login again!",
+        position: "bottom",
+      }); // ✅ Switches to AuthStack
     } catch (error) {
       console.error("Logout failed:", error);
+      Toast.show({
+        type: "error",
+        text1: "Cannot Logout",
+        position: "bottom",
+      }); // ✅ Switches to AuthStack
     }
   };
 

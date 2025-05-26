@@ -18,9 +18,8 @@ import * as ImagePicker from "expo-image-picker";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db } from "../../firebase";
-import { updateDoc, doc,Timestamp } from "firebase/firestore";
-import { storage } from "../../firebase"; // adjust the path
+import { db, storage } from "../../firebase";
+import { updateDoc, doc, Timestamp } from "firebase/firestore";
 import Toast from "react-native-toast-message";
 
 const EditEventScreen = ({ navigation }) => {
@@ -64,8 +63,6 @@ const EditEventScreen = ({ navigation }) => {
 
   const uploadImageToFirebase = async (uri) => {
     try {
-      console.log("Uploading from URI:", uri);
-
       const response = await fetch(uri);
       const blob = await response.blob();
 
@@ -75,7 +72,6 @@ const EditEventScreen = ({ navigation }) => {
       const snapshot = await uploadBytes(storageRef, blob);
       const downloadURL = await getDownloadURL(snapshot.ref);
 
-      console.log("Uploaded image URL:", downloadURL);
       return downloadURL;
     } catch (err) {
       console.error("🔥 Upload failed:", err);
@@ -117,7 +113,11 @@ const EditEventScreen = ({ navigation }) => {
       };
 
       await updateDoc(doc(db, "events", event.id), updatedData);
-      Toast.show({ type: "success", text1: "Event updated!", position: "bottom" });
+      Toast.show({
+        type: "success",
+        text1: "Event updated!",
+        position: "bottom",
+      });
       setLoading(false);
       navigation.goBack();
     } catch (error) {

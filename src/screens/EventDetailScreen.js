@@ -6,11 +6,11 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
+  SafeAreaView
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { SafeAreaView } from "react-native-safe-area-context";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -127,11 +127,14 @@ const EventDetailScreen = () => {
             </TouchableOpacity>
           )}
 
-           {isAdmin && (
+          {isAdmin && (
             <TouchableOpacity
               style={styles.attendeeBtn}
               onPress={() =>
-                navigation.navigate("EventAttendance", { eventId: event.id,event })
+                navigation.navigate("EventAttendance", {
+                  eventId: event.id,
+                  event,
+                })
               }
             >
               <Text style={styles.attendeeBtnText}>View Attendees</Text>
@@ -155,8 +158,6 @@ const EventDetailScreen = () => {
               </TouchableOpacity>
             </View>
           )}
-
-         
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -306,16 +307,15 @@ const styles = StyleSheet.create({
     fontSize: scale(14),
   },
   attendeeBtn: {
-  backgroundColor: '#4F6DF5',
-  padding: 12,
-  borderRadius: 8,
-  alignItems: 'center',
-  marginTop: 20,
-},
-attendeeBtnText: {
-  color: '#fff',
-  fontWeight: 'bold',
-  fontSize: 16,
-},
-
+    backgroundColor: "#4F6DF5",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  attendeeBtnText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
 });

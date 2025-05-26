@@ -78,9 +78,7 @@ const RegisterScreen = ({ navigation }) => {
           <View style={styles.container}>
             <View style={styles.topContainer}>
               <Image
-                source={{
-                  uri: 'https://cardiniamensshed.org.au/wp-content/uploads/2019/03/Cardinia-Mens-Shed-logo.jpg',
-                }}
+                source={require('../assets/Cardinia-Mens-Shed-logo-withoutbg.png')}
                 style={styles.logo}
               />
             </View>
@@ -178,7 +176,7 @@ export default RegisterScreen;
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#fff',
+    // backgroundColor: '#fff',
     paddingHorizontal: scale(24),
     paddingTop: verticalScale(70),
     alignItems: 'center',

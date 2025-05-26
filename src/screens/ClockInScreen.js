@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,19 +7,23 @@ import {
   Dimensions,
   TouchableOpacity,
   StyleSheet,
+  Modal,
 } from "react-native";
-import { setDoc } from 'firebase/firestore';
 
 import { useNavigation, useRoute } from "@react-navigation/native";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
-import { Modal } from "react-native";
-import { collection, getDocs } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  getDoc,
+  doc,
+  updateDoc,
+  setDoc,
+} from "firebase/firestore";
 
-import { doc, updateDoc } from "firebase/firestore";
 import Toast from "react-native-toast-message";
-import { getDoc } from 'firebase/firestore';
 
 import { db } from "../../firebase"; // or correct path
 
@@ -103,52 +107,54 @@ const ClockInScreen = () => {
 
   const handleClockAction = async () => {
 
-      console.log('👉 Clock action triggered');
+    if (!selectedMember) return;
 
-  if (!selectedMember) return;
+    try {
+      const attendeeRef = doc(
+        db,
+        "events",
+        event.id,
+        "attendees",
+        selectedMember.id
+      );
+      const now = new Date();
 
-  try {
-    const attendeeRef = doc(db, 'events', event.id, 'attendees', selectedMember.id);
-    const now = new Date();
+      if (actionType === "clockIn") {
 
-    if (actionType === 'clockIn') {
-      console.log('ActionType:', actionType);
+        await setDoc(attendeeRef, {
+          name: selectedMember.member_name,
+          clockIn: now,
+        });
+        Toast.show({
+          type: "success",
+          text1: "Clocked In Successfully",
+          position: "bottom",
+        });
+      } else if (actionType === "clockOut") {
+        await updateDoc(attendeeRef, {
+          clockOut: now,
+        });
+        Toast.show({
+          type: "success",
+          text1: "✅ Clocked Out Successfully",
+          position: "bottom",
+        });
+      }
 
-      await setDoc(attendeeRef, {
-        name: selectedMember.member_name,
-        clockIn: now,
-      });
+      setShowModal(false);
+      setSelectedMember(null);
+      setSearchText("");
+      setFilteredMembers([]);
+    } catch (error) {
+      console.error("Clock action failed:", error);
       Toast.show({
-        type: 'success',
-        text1: 'Clocked In Successfully',
-        position: 'bottom',
-      });
-    } else if (actionType === 'clockOut') {
-      await updateDoc(attendeeRef, {
-        clockOut: now,
-      });
-      Toast.show({
-        type: 'success',
-        text1: '✅ Clocked Out Successfully',
-        position: 'bottom',
+        type: "error",
+        text1: "Action Failed",
+        text2: error.message,
+        position: "bottom",
       });
     }
-
-    setShowModal(false);
-    setSelectedMember(null);
-    setSearchText('');
-    setFilteredMembers([]);
-  } catch (error) {
-    console.error('Clock action failed:', error);
-    Toast.show({
-      type: 'error',
-      text1: 'Action Failed',
-      text2: error.message,
-      position: 'bottom',
-    });
-  }
-};
-
+  };
 
   return (
     <View style={styles.container}>
