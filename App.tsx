@@ -11,7 +11,8 @@ const RootNavigator = () => {
 if (isLoggedIn === null) {
   return (
     <View style={styles.splashContainer}>
-<Image source={require('../CardiniaMensApp/src/assets/Cardinia-Mens-Shed-logo-withoutbg.png')} style={styles.logoImageOnly} />
+<Image source={require('./assets/Cardinia-Mens-Shed-logo-withoutbg.png')
+} style={styles.logoImageOnly} />
       </View>
   );
 }
