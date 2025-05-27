@@ -75,7 +75,7 @@ const isValidPassword = (password) => {
     Toast.show({
       type: "error",
       text1: "Registration Denied",
-      text2: "You must be a registered member. Contact admin to join.",
+      text2: "Contact admin to join.",
       position: "bottom",
     });
     return;
