@@ -22,6 +22,7 @@ import {
   scale,
   verticalScale,
 } from 'react-native-size-matters';
+import Toast from 'react-native-toast-message';
 const RegisterScreen = ({ navigation }) => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -30,15 +31,55 @@ const RegisterScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  const checkIfMemberExists = async (email) => {
+  const q = query(collection(db, 'members'), where('email', '==', email));
+  const snapshot = await getDocs(q);
+  return !snapshot.empty;
+};
+
+const isValidPassword = (password) => {
+  const regex = /^(?=.*[A-Z])(?=.*[^A-Za-z0-9])(?=.{8,})/;
+  return regex.test(password);
+};
+
   const handleSignUp = async () => {
     if (!email || !password || !fullName) {
-      alert('Please fill in all fields');
+      Toast.show({
+      type: "error",
+      text1: "Please fill all fields",
+      position: "bottom",
+    });
       return;
     }
-    if (password !== confirmPassword) {
-      alert('Passwords do not match');
-      return;
-    }
+   if (password !== confirmPassword || !isValidPassword(password)) {
+  let message = "";
+
+  if (password !== confirmPassword) {
+    message = "Passwords do not match. Please ensure both passwords are the same.";
+  } else {
+    message = "Password must be at least 8 characters with 1 uppercase and 1 special character.";
+  }
+
+  Toast.show({
+    type: "error",
+    text1: "Invalid Password",
+    text2: message,
+    position: "bottom",
+  });
+  return;
+}
+
+    const isMember = await checkIfMemberExists(email);
+
+  if (!isMember) {
+    Toast.show({
+      type: "error",
+      text1: "Registration Denied",
+      text2: "You must be a registered member. Contact admin to join.",
+      position: "bottom",
+    });
+    return;
+  }
 
     try {
       const q = query(collection(db, 'users'), where('email', '==', email));
