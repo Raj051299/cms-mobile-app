@@ -27,11 +27,28 @@ const MemberDetailsScreen = ({ route, navigation }) => {
     member_name: member.member_name,
   };
 
-  const formatTimestamp = (timestamp) => {
-    if (!timestamp || !timestamp.seconds) return "N/A";
-    const date = new Date(timestamp.seconds * 1000);
-    return date.toLocaleDateString("en-GB"); // format: dd/mm/yyyy
-  };
+  const formatTimestamp = (dobInput) => {
+  // Case 1: Firestore Timestamp
+  if (dobInput?.seconds) {
+    const date = new Date(dobInput.seconds * 1000);
+    return date.toDateString(); // e.g., "Mon May 27 2024"
+  }
+
+  // Case 2: DD/MM/YYYY string
+  if (typeof dobInput === "string") {
+    const [day, month, year] = dobInput.split("/");
+    if (!day || !month || !year) return "Invalid DOB";
+
+    const date = new Date(`${year}-${month}-${day}`);
+    return date.toDateString();
+  }
+
+  // Fallback
+  return "No DOB Provided.";
+};
+
+
+
 
   const fromAge = (timestamp) => {
     if (!timestamp || !timestamp.seconds) return "N/A";
@@ -98,25 +115,27 @@ const MemberDetailsScreen = ({ route, navigation }) => {
         <BackHeader label="Members" />
 
         <Image
-          source={
-            member?.photo?.startsWith("file://") ||
-            member?.photo?.startsWith("content://")
-              ? { uri: member.photo }
-              : require("../assets/roger.png") // fallback to a local placeholder image
-          }
-          style={styles.avatar}
-        />
+  source={
+    member?.member_image?.startsWith("http")
+      ? { uri: member.member_image }
+      : {
+          uri: "https://firebasestorage.googleapis.com/v0/b/cardinia-mens-shed-app.firebasestorage.app/o/member_pictures%2Fdefault-member-image.png?alt=media&token=50c3001e-5b29-4f83-b526-9e3e49b5ac6a"
+        }}
+  style={styles.avatar}
+/>
+
         <Text style={styles.name}>{member?.member_name || "No Name"}</Text>
 
-        <Text style={styles.name}>{fromAge(member?.dob) || ""} years</Text>
+        <Text style={styles.name}>{member?.age || ""} years</Text>
 
         
 
         <View style={styles.infoSection}>
           <Text style={styles.sectionTitle}>Date of Birth</Text>
           <Text style={styles.aboutText}>
-            {formatTimestamp(member?.dob) || "No DOB Provided."}
-          </Text>
+  {formatTimestamp(member?.dob)}
+</Text>
+
 
           <Text style={styles.sectionTitle}>Phone Number</Text>
           <Text style={styles.aboutText}>

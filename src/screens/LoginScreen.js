@@ -31,16 +31,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "../context/AuthContext";
 
 const LoginScreen = ({ navigation }) => {
-  const [email, setEmail] = useState("");
+const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   //this function run when you press signin button
   const { setIsLoggedIn } = useAuth();
 
   const handleLogin = async () => {
-    if (!email || !password) {
+    if (!username || !password) {
       Toast.show({
         type: "error",
         text1: "Please enter your email and password",
@@ -56,10 +55,11 @@ const LoginScreen = ({ navigation }) => {
 
       // Step 2: Query Firestore for matching email + hashed password
       const q = query(
-        collection(db, "users"),
-        where("email", "==", email),
-        where("password", "==", hashedPassword)
-      );
+  collection(db, "users"),
+  where("username", "==", username),
+  where("password", "==", hashedPassword)
+);
+
 
       const snapshot = await getDocs(q);
 
@@ -121,13 +121,13 @@ const LoginScreen = ({ navigation }) => {
                 style={styles.icon}
               />
               <TextInput
-                placeholder="abc@email.com"
-                style={styles.input}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                placeholderTextColor="#999"
-              />
+  placeholder="Email or Mobile"
+  style={styles.input}
+  value={username}
+  onChangeText={setUsername}
+  keyboardType="default"
+  placeholderTextColor="#999"
+/>
             </View>
 
             <View style={styles.inputContainer}>

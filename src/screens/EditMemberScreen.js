@@ -20,8 +20,11 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import * as ImagePicker from "expo-image-picker";
 import Toast from "react-native-toast-message";
 import { scale, verticalScale } from "react-native-size-matters";
+import LoadingScreen from "../components/LoadingScreen"; // adjust path
 
 const EditMemberScreen = () => {
+  const [loading, setLoading] = useState(false);
+
   const navigation = useNavigation();
   const route = useRoute();
   const { member, memberId } = route.params;
@@ -67,7 +70,7 @@ const EditMemberScreen = () => {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.MediaType.Images,
       allowsEditing: true,
       quality: 1,
     });
@@ -90,27 +93,52 @@ const EditMemberScreen = () => {
 
   const handleUpdateMember = async () => {
     try {
-      const updatedImage = await uploadImageToFirebase(coverImage);
-      const updatedData = {
-        member_name,
-        coverImage: updatedImage,
-        dob,
-        age: parseInt(age) || 0,
-        status,
-        financial,
-        address,
-        suburb,
-        post_code,
-        telephone,
-        mobile,
-        email,
-        ice_contact,
-        member_relationship,
-        ice_telephone,
-        interest_group_1,
-        interest_group_2,
-        interest_group_3,
-      };
+      const updatedData = {};
+
+      if (member_name !== member.member_name)
+        updatedData.member_name = member_name;
+      if (dob !== member.dob) updatedData.dob = dob;
+      if (age !== member.age?.toString()) updatedData.age = parseInt(age) || 0;
+      if (status !== member.status) updatedData.status = status;
+      if (financial !== member.financial) updatedData.financial = financial;
+      if (address !== member.address) updatedData.address = address;
+      if (suburb !== member.suburb) updatedData.suburb = suburb;
+      if (post_code !== member.post_code) updatedData.post_code = post_code;
+      if (telephone !== member.telephone) updatedData.telephone = telephone;
+      if (mobile !== member.mobile) updatedData.mobile = mobile;
+      if (email !== member.email) updatedData.email = email;
+      if (ice_contact !== member.ice_contact)
+        updatedData.ice_contact = ice_contact;
+      if (member_relationship !== member.member_relationship)
+        updatedData.member_relationship = member_relationship;
+      if (ice_telephone !== member.ice_telephone)
+        updatedData.ice_telephone = ice_telephone;
+      if (interest_group_1 !== member.interest_group_1)
+        updatedData.interest_group_1 = interest_group_1;
+      if (interest_group_2 !== member.interest_group_2)
+        updatedData.interest_group_2 = interest_group_2;
+      if (interest_group_3 !== member.interest_group_3)
+        updatedData.interest_group_3 = interest_group_3;
+
+      setLoading(true);
+
+
+      // Check if image changed
+      if (
+        !coverImage.startsWith("https") ||
+        coverImage !== member.member_image
+      ) {
+        const updatedImage = await uploadImageToFirebase(coverImage);
+        updatedData.member_image = updatedImage;
+      }
+
+      if (Object.keys(updatedData).length === 0) {
+        Toast.show({ type: "info", text1: "No changes detected." });
+        return;
+      }
+
+      await updateDoc(doc(db, "members", memberId), updatedData);
+
 
       await updateDoc(doc(db, "members", memberId), updatedData);
       Toast.show({ type: "success", text1: "Member updated successfully!" });
@@ -118,6 +146,8 @@ const EditMemberScreen = () => {
     } catch (error) {
       console.error("Update failed:", error);
       Toast.show({ type: "error", text1: "Update failed. Try again." });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -139,6 +169,10 @@ const EditMemberScreen = () => {
       />
     </>
   );
+
+  if (loading) {
+    return <LoadingScreen message="Processing..." />;
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>

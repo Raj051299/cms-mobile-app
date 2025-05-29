@@ -5,7 +5,6 @@ import {
   TextInput,
   Image,
   TouchableOpacity,
-  ActivityIndicator,
   ScrollView,
   StyleSheet,
 } from "react-native";
@@ -15,7 +14,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
-
+import LoadingScreen from "../components/LoadingScreen"; // adjust path
 import * as ImagePicker from "expo-image-picker";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -31,6 +30,7 @@ import { storage } from "../../firebase"; // adjust the path
 import Toast from "react-native-toast-message";
 
 const CreateEvent = ({ navigation }) => {
+  
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
@@ -55,7 +55,7 @@ const CreateEvent = ({ navigation }) => {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.MediaType.Images,
       allowsEditing: true,
       quality: 1,
     });
@@ -122,14 +122,21 @@ const CreateEvent = ({ navigation }) => {
       };
 
       await addDoc(collection(db, "events"), eventData);
-      alert("Event created successfully!");
-      setLoading(false);
+      Toast.show({ type: "success", text1: "Event Created successfully!" });
       navigation.goBack();
     } catch (error) {
       console.error("Error creating event:", error);
+      Toast.show({ type: "error", text1: "Error in event creation" });
+      
+    }finally {
       setLoading(false);
     }
   };
+
+  if (loading) {
+  return <LoadingScreen message="Processing..." />;
+}
+
 
   return (
     <KeyboardAvoidingView
@@ -251,11 +258,9 @@ const CreateEvent = ({ navigation }) => {
             style={styles.submitButton}
             onPress={handleCreateEvent}
           >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
+           
               <Text style={styles.submitButtonText}>Create Event</Text>
-            )}
+          
           </TouchableOpacity>
         </ScrollView>
       </TouchableWithoutFeedback>

@@ -21,6 +21,8 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../../firebase";
 import { updateDoc, doc, Timestamp } from "firebase/firestore";
 import Toast from "react-native-toast-message";
+import LoadingScreen from "../components/LoadingScreen"; // adjust path
+
 
 const EditEventScreen = ({ navigation }) => {
   const route = useRoute();
@@ -51,7 +53,7 @@ const EditEventScreen = ({ navigation }) => {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.MediaType.Images,
       allowsEditing: true,
       quality: 1,
     });
@@ -118,13 +120,19 @@ const EditEventScreen = ({ navigation }) => {
         text1: "Event updated!",
         position: "bottom",
       });
-      setLoading(false);
       navigation.goBack();
     } catch (error) {
       console.error("Error creating event:", error);
-      setLoading(false);
+      Toast.show({
+        type: "error",
+        text1: "Event not updated!",
+        position: "bottom",
+      });
     }
   };
+if (loading) {
+  return <LoadingScreen message="Processing..." />;
+}
 
   return (
     <KeyboardAvoidingView
@@ -244,11 +252,9 @@ const EditEventScreen = ({ navigation }) => {
             placeholderTextColor="#000"
           />
           <TouchableOpacity style={styles.submitButton} onPress={handleUpdate}>
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
+            
               <Text style={styles.submitButtonText}>Update Event</Text>
-            )}
+            
           </TouchableOpacity>
         </ScrollView>
       </TouchableWithoutFeedback>

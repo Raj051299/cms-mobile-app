@@ -39,19 +39,22 @@ const CustomDrawerContent: React.FC = () => {
       if (!storedUser) return;
 
       const user = JSON.parse(storedUser);
-      const userEmail = user.email;
+      console.log(user)
+      const userIdentifier = user.username;
 
-      // query members collection by email
-      const q = query(
-        collection(db, "members"),
-        where("email", "==", userEmail)
-      );
-      const snapshot = await getDocs(q);
+const emailQuery = query(collection(db, "members"), where("email", "==", userIdentifier));
+const mobileQuery = query(collection(db, "members"), where("mobile", "==", userIdentifier));
 
-      if (!snapshot.empty) {
-        const data = snapshot.docs[0].data();
-        setMember(data);
-      }
+const emailSnap = await getDocs(emailQuery);
+const mobileSnap = await getDocs(mobileQuery);
+
+const snapshot = !emailSnap.empty ? emailSnap : mobileSnap;
+
+if (!snapshot.empty) {
+  const data = snapshot.docs[0].data();
+  setMember(data);
+}
+
     };
 
     fetchMemberInfo();
@@ -62,10 +65,11 @@ const CustomDrawerContent: React.FC = () => {
       <View style={styles.profileSection}>
         <Image
           source={
-            member?.profileImage
-              ? { uri: member.profileImage }
-              : require("../assets/roger.png")
-          }
+            member?.member_image
+              ? { uri: member.member_image }
+              : {
+          uri: "https://firebasestorage.googleapis.com/v0/b/cardinia-mens-shed-app.firebasestorage.app/o/member_pictures%2Fdefault-member-image.png?alt=media&token=50c3001e-5b29-4f83-b526-9e3e49b5ac6a"
+        } }
           style={styles.avatar}
         />
 
