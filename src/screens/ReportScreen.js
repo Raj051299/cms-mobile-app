@@ -16,7 +16,7 @@ import Toast from "react-native-toast-message";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { doc, getDocs, collection } from "firebase/firestore";
+import { doc, getDocs, collection,query, where } from "firebase/firestore";
 import LoadingScreen from "../components/LoadingScreen"; // adjust path
 
 import { db } from "../../firebase"; // ✅ correct path to your firebase.ts file
@@ -24,7 +24,6 @@ import { db } from "../../firebase"; // ✅ correct path to your firebase.ts fil
 import { getDoc } from 'firebase/firestore';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import BackHeader from "../components/Backheader";
 const { width, height } = Dimensions.get("window");
 
 const ReportScreen = () => {
@@ -162,7 +161,26 @@ const ReportScreen = () => {
 
       for (const event of filteredEvents) {
         const attendeesRef = collection(db, "events", event.id, "attendees");
-        const attendeeSnap = await getDocs(query(attendeesRef, where("email", "==", member.email)));
+let identifierField = null;
+let identifierValue = null;
+
+if (member.email) {
+  identifierField = "email";
+  identifierValue = member.email;
+} else if (member.mobile) {
+  identifierField = "mobile";
+  identifierValue = member.mobile;
+} else if (member.telephone) {
+  identifierField = "telephone";
+  identifierValue = member.telephone;
+} else {
+  console.warn(`Skipping member with no identifier: ${member.member_name}`);
+  continue;
+}
+
+const attendeeSnap = await getDocs(
+  query(attendeesRef, where(identifierField, "==", identifierValue))
+);
 
         if (!attendeeSnap.empty) {
           const hours = event.data().duration || 2;

@@ -126,7 +126,7 @@ const HomeScreen = () => {
       </View>
 
       <Text style={styles.cardTitle}>{item.title}</Text>
-      <Text style={styles.cardLocation}>{item.description}</Text>
+      <Text style={styles.cardLocation}>{item.location}</Text>
       <Text style={styles.attendees}>
         Event on{" "}
         {item.date?.toDate?.().toLocaleDateString("en-US", {

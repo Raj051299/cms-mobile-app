@@ -14,7 +14,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
-import * as ImagePicker from "expo-image-picker";
+import * as ImagePicker from 'expo-image-picker';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -44,24 +44,27 @@ const EditEventScreen = ({ navigation }) => {
     location: false,
   });
 
-  const pickImage = async () => {
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permissionResult.granted) {
-      alert("Permission to access media library is required!");
-      return;
-    }
+const pickImage = async () => {
+  const { granted } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  if (!granted) {
+    alert("Permission to access media library is required!");
+    return;
+  }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaType.Images,
-      allowsEditing: true,
-      quality: 1,
-    });
+  const result = await ImagePicker.launchImageLibraryAsync({
+    // mediaTypes: ImagePicker.MediaType.ALL , // ✅ This works
 
-    if (!result.canceled && result.assets.length > 0) {
-      setCoverImage(result.assets[0].uri);
-    }
-  };
+    allowsEditing: true,  
+    quality: 1,
+  });
+
+  console.log("Image picker result:", result);
+
+  if (!result.canceled && result.assets?.length > 0) {
+    setCoverImage(result.assets[0].uri);
+  }
+};
+
 
   const uploadImageToFirebase = async (uri) => {
     try {
@@ -103,9 +106,11 @@ const EditEventScreen = ({ navigation }) => {
     setLoading(true);
     try {
       let imageUrl = null;
-      if (coverImage) {
-        imageUrl = await uploadImageToFirebase(coverImage);
-      }
+      if (coverImage.startsWith("file://")) {
+  imageUrl = await uploadImageToFirebase(coverImage);
+} else {
+  imageUrl = coverImage; // already a Firebase URL
+}
       const updatedData = {
         title,
         description,
@@ -121,6 +126,7 @@ const EditEventScreen = ({ navigation }) => {
         position: "bottom",
       });
       navigation.goBack();
+      setLoading(false);
     } catch (error) {
       console.error("Error creating event:", error);
       Toast.show({
@@ -179,12 +185,16 @@ if (loading) {
             multiline
             placeholderTextColor="#000"
           />
-          <TouchableOpacity style={styles.pickImageButton} onPress={pickImage}>
-            <Icon name="image-outline" size={24} color="#555" />
-            <Text style={styles.datePickerText}>
-              {coverImage ? "Change Cover Image" : "Select Cover Image"}
-            </Text>
-          </TouchableOpacity>
+          <TouchableOpacity style={styles.pickImageButton} onPress={() => {
+  console.log("Pick image pressed"); // Add this
+  pickImage();
+}}>
+  <Icon name="image-outline" size={24} color="#555" />
+  <Text style={styles.datePickerText}>
+    {coverImage ? "Change Cover Image" : "Select Cover Image"}
+  </Text>
+</TouchableOpacity>
+
 
           {coverImage && (
             <Image source={{ uri: coverImage }} style={styles.imagePreview} />
