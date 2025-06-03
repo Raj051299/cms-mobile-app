@@ -123,6 +123,18 @@ const CreateEvent = ({ navigation }) => {
 
       await addDoc(collection(db, "events"), eventData);
       Toast.show({ type: "success", text1: "Event Created successfully!" });
+      // Reset the form
+setTitle("");
+setDescription("");
+setLocation("");
+setCoverImage(null);
+setDate(new Date());
+setErrors({
+  title: false,
+  description: false,
+  location: false,
+});
+
       navigation.goBack();
     } catch (error) {
       console.error("Error creating event:", error);
